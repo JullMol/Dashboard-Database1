@@ -159,9 +159,13 @@ elif view_option == "Sales Analysis":
         }).reset_index()
         product_analysis['profit_margin'] = (product_analysis['profit'] / product_analysis['sales'] * 100).fillna(0)
         
-        fig3 = px.scatter(product_analysis.head(50), x='sales', y='profit',
-                         size='profit_margin',
-                         hover_data=['product_name'],
+        # For size parameter, use absolute sales (always positive)
+        # Filter out any rows with invalid data
+        plot_data = product_analysis[product_analysis['sales'] > 0].head(50)
+        
+        fig3 = px.scatter(plot_data, x='sales', y='profit',
+                         size='sales',  # Use sales for size (always positive)
+                         hover_data=['product_name', 'profit_margin'],
                          title='Sales vs Profit (Top 50 Products)',
                          color='profit_margin',
                          color_continuous_scale='RdYlGn')
