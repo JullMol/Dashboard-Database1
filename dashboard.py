@@ -10,10 +10,10 @@ st.set_page_config(page_title="Superstore Analytics Dashboard", layout="wide", p
 @st.cache_data
 def load_data():
     try:
-        orders = pd.read_csv('superstore_order.csv')
-        products = pd.read_csv('superstore_product.csv')
-        customers = pd.read_csv('superstore_customer.csv')
-        stock = pd.read_csv('product_stock.csv')
+        orders = pd.read_csv('superstore_order.xlsx')
+        products = pd.read_csv('superstore_product.xlsx')
+        customers = pd.read_csv('superstore_customer.xlsx')
+        stock = pd.read_csv('product_stock.xlsx')
         
         # Convert types
         orders['sales'] = pd.to_numeric(orders['sales'], errors='coerce')
