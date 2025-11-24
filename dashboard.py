@@ -17,14 +17,14 @@ def load_data():
         customers = pd.read_excel('superstore_customer.xlsx')
         stock = pd.read_excel('product_stock.xlsx')
         
-        # Debug: tampilkan kolom yang ada
-        st.sidebar.write("📋 Kolom di superstore_order:", list(orders.columns))
+        # Rename kolom orders untuk sesuaikan dengan space ke underscore
+        orders.columns = orders.columns.str.strip().str.replace(' ', '_').str.lower()
+        products.columns = products.columns.str.strip().str.replace(' ', '_').str.lower()
+        customers.columns = customers.columns.str.strip().str.replace(' ', '_').str.lower()
+        stock.columns = stock.columns.str.strip().str.replace(' ', '_').str.lower()
         
-        # Bersihkan nama kolom (hapus spasi dan lowercase)
-        orders.columns = orders.columns.str.strip().str.lower()
-        products.columns = products.columns.str.strip().str.lower()
-        customers.columns = customers.columns.str.strip().str.lower()
-        stock.columns = stock.columns.str.strip().str.lower()
+        # Debug: tampilkan kolom yang sudah direname
+        st.sidebar.success(f"✅ Data loaded: {len(orders):,} orders")
         
         # Convert types dengan error handling
         if 'sales' in orders.columns:
