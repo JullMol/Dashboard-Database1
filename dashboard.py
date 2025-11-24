@@ -11,23 +11,41 @@ st.set_page_config(page_title="Superstore Analytics Dashboard", layout="wide", p
 def load_data():
     """Load data dari Excel files"""
     try:
+        # Load files
         orders = pd.read_excel('superstore_order.xlsx')
         products = pd.read_excel('superstore_product.xlsx')
         customers = pd.read_excel('superstore_customer.xlsx')
         stock = pd.read_excel('product_stock.xlsx')
         
-        # Convert types
-        orders['sales'] = pd.to_numeric(orders['sales'], errors='coerce')
-        orders['profit'] = pd.to_numeric(orders['profit'], errors='coerce')
-        orders['quantity'] = pd.to_numeric(orders['quantity'], errors='coerce')
-        orders['discount'] = pd.to_numeric(orders['discount'], errors='coerce')
-        orders['order_date'] = pd.to_datetime(orders['order_date'], errors='coerce')
-        orders['ship_date'] = pd.to_datetime(orders['ship_date'], errors='coerce')
+        # Debug: tampilkan kolom yang ada
+        st.sidebar.write("📋 Kolom di superstore_order:", list(orders.columns))
+        
+        # Bersihkan nama kolom (hapus spasi dan lowercase)
+        orders.columns = orders.columns.str.strip().str.lower()
+        products.columns = products.columns.str.strip().str.lower()
+        customers.columns = customers.columns.str.strip().str.lower()
+        stock.columns = stock.columns.str.strip().str.lower()
+        
+        # Convert types dengan error handling
+        if 'sales' in orders.columns:
+            orders['sales'] = pd.to_numeric(orders['sales'], errors='coerce')
+        if 'profit' in orders.columns:
+            orders['profit'] = pd.to_numeric(orders['profit'], errors='coerce')
+        if 'quantity' in orders.columns:
+            orders['quantity'] = pd.to_numeric(orders['quantity'], errors='coerce')
+        if 'discount' in orders.columns:
+            orders['discount'] = pd.to_numeric(orders['discount'], errors='coerce')
+        if 'order_date' in orders.columns:
+            orders['order_date'] = pd.to_datetime(orders['order_date'], errors='coerce')
+        if 'ship_date' in orders.columns:
+            orders['ship_date'] = pd.to_datetime(orders['ship_date'], errors='coerce')
         
         return orders, products, customers, stock
     except Exception as e:
         st.error(f"Error loading data: {e}")
         st.info("📁 Pastikan file Excel (.xlsx) ada di folder yang sama dengan script")
+        import traceback
+        st.code(traceback.format_exc())
         return None, None, None, None
 
 # Load data
@@ -38,9 +56,14 @@ if orders is None:
     st.info("📁 File yang diperlukan: superstore_order.xlsx, superstore_product.xlsx, superstore_customer.xlsx, product_stock.xlsx")
     st.stop()
 
-# Merge data
-orders_full = orders.merge(products, on='product_id', how='left', suffixes=('', '_prod'))
-orders_full = orders_full.merge(customers, on='customer_id', how='left', suffixes=('', '_cust'))
+# Merge data dengan safe join
+try:
+    orders_full = orders.merge(products, on='product_id', how='left', suffixes=('', '_prod'))
+    orders_full = orders_full.merge(customers, on='customer_id', how='left', suffixes=('', '_cust'))
+except Exception as e:
+    st.error(f"Error merging data: {e}")
+    st.info("Cek apakah kolom 'product_id' dan 'customer_id' ada di semua file")
+    st.stop()
 
 # Header Dashboard
 st.title("📊 Superstore Analytics Dashboard")
